@@ -1,0 +1,12 @@
+<?component name="imageLabel" class="demo.composite.ImageLabel" ?>
+<zk>
+	<style src="Customize.css"/>
+	<window title="test" border="normal"  height="300px"
+		apply="demo.composite.DemoCtrl">
+		<imageLabel id="imgLbl" >
+			<attribute name="onSubmit"><![CDATA[
+				alert("test!!!!");
+			]]></attribute>
+		</imageLabel>
+	</window>
+</zk>

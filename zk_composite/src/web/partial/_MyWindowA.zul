@@ -1,0 +1,14 @@
+
+<vbox>
+	<button label="Left" image="~./partial/img/Centigrade-Widget-Icons/ArrowLeft-16x16.png" 
+		hoverImage="~./partial/img/Centigrade-Widget-Icons/ArrowLeftGreen-16x16.png"
+		width="125px" />
+	<button label="Right" image="~./partial/img/Centigrade-Widget-Icons/ArrowRight-16x16.png" 
+		hoverImage="~./partial/img/Centigrade-Widget-Icons/ArrowRightGreen-16x16.png"
+		dir="reverse" width="125px" />
+	<button label="Above" image="~./partial/img/Centigrade-Widget-Icons/ArrowUp-16x16.png"
+		hoverImage="~./partial/img/Centigrade-Widget-Icons/ArrowUpGreen-16x16.png" orient="vertical" width="125px" />
+	<button label="Below" image="~./partial/img/Centigrade-Widget-Icons/ArrowDown-16x16.png"
+		hoverImage="~./partial/img/Centigrade-Widget-Icons/ArrowDownGreen-16x16.png" orient="vertical" dir="reverse"
+		width="125px" />
+</vbox>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+	<config-name>zk_composite</config-name>
+
+	<listener>
+		<listener-class>org.zkoss.composite.PackageScanWebAppInit</listener-class>
+	</listener>
+</zk>

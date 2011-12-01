@@ -1,0 +1,11 @@
+<groupbox id="item" width="800px" closable="false" sclass="item">
+	<caption>
+		<label id="titleLabel" sclass="title" />
+	</caption>
+	<hlayout>
+		<image id="labelImage" sclass="image" />
+		<div sclass="desc-div">
+			<label id="descLabel" sclass="desc" />
+		</div>
+	</hlayout>
+</groupbox>

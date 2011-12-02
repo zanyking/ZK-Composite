@@ -55,8 +55,14 @@ public final class CompositeCtrls {
 	 * 
 	 * @param compClass
 	 * @return
+	 * @throws NoSuchMethodException 
+	 * @throws SecurityException 
 	 */
-	public static void register(Class<? extends Component> compClass, WebApp webapp){
+	public static void register(Class<? extends Component> compClass, WebApp webapp) throws SecurityException, NoSuchMethodException{
+		
+		//must have public default constructor, otherwise zk parser cannot instantiate an instance. 
+		//PS: none static inner class wont pass this check
+		compClass.getConstructor();//see if we can get one.
 		
 		LanguageDefinition langDef =  LanguageDefinition.lookup("xul/html");
 		ComponentDefinition def = getPredefinedSuperType(compClass, langDef);
@@ -114,10 +120,16 @@ public final class CompositeCtrls {
 		
 		finder.accept(new ResourceVisitor<Class<? extends Component>>() {
 			public void visit(Class<? extends Component> compositeClass) {
-				
-				register(compositeClass, webapp);
-				result.add(compositeClass);
-				
+				try {
+					
+					register(compositeClass, webapp);
+					result.add(compositeClass);
+					
+				} catch (SecurityException e) {
+					throw new RuntimeException(e);
+				} catch (NoSuchMethodException e) {
+					// simply ignore this class, cause it has no public default constructor. 
+				}
 			}
 		});
 		return result;

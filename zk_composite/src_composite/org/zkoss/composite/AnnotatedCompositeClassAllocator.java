@@ -64,7 +64,8 @@ public class AnnotatedCompositeClassAllocator implements ResourceAllocator<Class
 					}
 				}
 				if(!hasCompositeAnnotation)return;// has no Composite Annotation
-				if((clzNode.access & Opcodes.ACC_PUBLIC)==0)return;// this is not a public class, cannot instantiate.
+				if((clzNode.access & Opcodes.ACC_PUBLIC)==0 || 
+						(clzNode.access & Opcodes.ACC_ABSTRACT)!=0 )return;// this is not a public class, cannot instantiate.
 				
 				String fqcn = ClassUtils.convertResourcePathToClassName(clzNode.name);
 				Class<?> clz = (Class<?>) Class.forName(fqcn);

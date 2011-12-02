@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.zkoss.composite.CompositeClassAllocator;
+import org.zkoss.composite.AnnotatedCompositeClassAllocator;
 import org.zkoss.util.cpr.ClassFinder;
 import org.zkoss.util.cpr.ResourceVisitor;
 import org.zkoss.zk.ui.Component;
@@ -28,7 +28,7 @@ public class FindClass_TEST {
 		
 		ClassFinder<Class<? extends Component>> finder = 
 			new ClassFinder<Class<? extends Component>>("demo.ui.composite", 
-					new CompositeClassAllocator(), true);
+					new AnnotatedCompositeClassAllocator(), true);
 		
 		final ArrayList<Class<? extends Component>> arr = 
 			new ArrayList<Class<? extends Component>>();
@@ -38,15 +38,12 @@ public class FindClass_TEST {
 				System.out.println("Candidate Composite Class: "+
 						compositeClass.getCanonicalName());
 				arr.add(compositeClass);
-				
 			}
 		});
 		System.out.println("done..." );
 		
 		
 		Assert.assertEquals(2, arr.size());
-		Assert.assertEquals(ImageLabel.class, arr.get(0));
-		Assert.assertEquals(MyWindowA.class, arr.get(1));
 	}
 
 }

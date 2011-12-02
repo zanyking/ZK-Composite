@@ -40,7 +40,7 @@ public final class CompositeCtrls {
 	 * @return
 	 */
 	public static String getName(Class<? extends Component> compositeClz){
-		return Composites.DEF_CACHE.get(compositeClz, WebApps.getCurrent()).name;
+		return Composites.URI_DEF_CACHE.get(compositeClz, WebApps.getCurrent()).name;
 	}
 	/**
 	 * 
@@ -48,7 +48,7 @@ public final class CompositeCtrls {
 	 * @return
 	 */
 	public static String getMacroURI(Class<? extends Component> compositeClz){
-		return Composites.DEF_CACHE.get(compositeClz, WebApps.getCurrent()).macroURI;
+		return Composites.URI_DEF_CACHE.get(compositeClz, WebApps.getCurrent()).macroURI;
 	}
 	
 	/**
@@ -57,37 +57,34 @@ public final class CompositeCtrls {
 	 * @return
 	 */
 	public static void register(Class<? extends Component> compClass, WebApp webapp){
-		CompositeDef compositeDef = Composites.DEF_CACHE.get(compClass, webapp);
 		
-		if(compositeDef==null)
-			throw new IllegalArgumentException(" cannot get a proper macroURI, " +
-				"please check the spelling of zul file or class hierarchy of given composite: "+compClass);
-		
-		resolveCompDefReg(compositeDef, LanguageDefinition.lookup("xul/html"));
+		LanguageDefinition langDef =  LanguageDefinition.lookup("xul/html");
+		ComponentDefinition def = getPredefinedSuperType(compClass, langDef);
+		if(def !=null){
+			MacroURIDef mUriDef = Composites.URI_DEF_CACHE.get(compClass, webapp);
+			ComponentDefinition curDef = def.clone(langDef, mUriDef.name);
+			curDef.setImplementationClass(compClass);
+			langDef.addComponentDefinition(curDef);
+		}
 		
 	}
 	
-	private static void resolveCompDefReg(CompositeDef compositeDef, LanguageDefinition langDef){
+	private static ComponentDefinition getPredefinedSuperType(
+		Class<? extends Component> compClass, LanguageDefinition langDef){
 		
-		Stack<Class<?>> stack = new Stack<Class<?>>();
-		stack.push(compositeDef.klass);
-		ComponentDefinition ref = null, curDef = null ;
-		Class<?> suClz;
-		while(!stack.isEmpty()){
-			suClz = stack.peek().getSuperclass();
+		ComponentDefinition def = null;
+		Class<?> suClz = compClass.getSuperclass();
+		while(def==null){
+			if(suClz==null || suClz.equals(AbstractComponent.class))
+				return null;
 			
 			try{
-				ref = langDef.getComponentDefinition(suClz);
-				curDef = ref.clone(langDef, compositeDef.name);
-				//TODO: currently I have to ignore it cause I shouldn't assume the concrete class will be ComponentDefinitionImpl
-				//compdef.setDeclarationURL(url); 
-				curDef.setImplementationClass((Class<? extends Component>) stack.pop());
-				langDef.addComponentDefinition(curDef);
-				
+				def = langDef.getComponentDefinition(suClz);
 			}catch(DefinitionNotFoundException e){
-				stack.push(suClz);
+				suClz = suClz.getSuperclass();
 			}
 		}
+		return def;
 	}
 	
 	/**
@@ -106,18 +103,18 @@ public final class CompositeCtrls {
 	 * @param webapp
 	 * @return
 	 */
-	public static List<Class<? extends Component>> 
-	scan(String _package_, final WebApp webapp){
+	public static List<Class<? extends Component>> scan(String _package_, final WebApp webapp){
 		
 		ClassFinder<Class<? extends Component>> finder = 
 			new ClassFinder<Class<? extends Component>>(
-				_package_, new CompositeClassAllocator(), true);
+				_package_, new AnnotatedCompositeClassAllocator(), true);
 		
 		final ArrayList<Class<? extends Component>> result = 
 			new ArrayList<Class<? extends Component>>();
 		
 		finder.accept(new ResourceVisitor<Class<? extends Component>>() {
 			public void visit(Class<? extends Component> compositeClass) {
+				
 				register(compositeClass, webapp);
 				result.add(compositeClass);
 				
@@ -125,6 +122,38 @@ public final class CompositeCtrls {
 		});
 		return result;
 	}
+	
+	
+	/**
+	 * 
+	 * @param url
+	 * @return null if IOException
+	 */
+	static String readTextContentIgnore(URL url){
+		if(url==null)return null;
+		String content;
+		try {
+			content = readTextContent(url.openStream(), 20*1024);
+		} catch (IOException e) {
+			return null;
+		}
+		return content;
+	}
+	private static String readTextContent(InputStream in, int chunkSize) throws IOException{
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		try {
+			byte[] chunk = new byte[chunkSize];
+			int readLen = -1;
+			while( (readLen = in.read(chunk)) != -1){
+				bout.write(chunk, 0, readLen);
+			}
+			return new String(bout.toByteArray(), "UTF-8");
+			
+		}finally{
+			if(in !=null)in.close();
+		}
+	}
+
 }//end of class...
 
 
@@ -134,7 +163,7 @@ public final class CompositeCtrls {
  * @author Ian YT Tsai(zanyking)
  *
  */
-/*package*/ class CompositeDef{
+/*package*/ class MacroURIDef{
 	
 	public final String macroURI;
 	public final String name;
@@ -147,7 +176,7 @@ public final class CompositeCtrls {
 	 * @param content
 	 * @param superClass
 	 */
-	public CompositeDef(String name, String macroURI, String content, Class<? extends Component> klass) {
+	public MacroURIDef(String name, String macroURI, String content, Class<? extends Component> klass) {
 		this.name = name;
 		this.macroURI = macroURI;
 		this.zulContent = content;
@@ -161,9 +190,9 @@ public final class CompositeCtrls {
  * @author Ian YT Tsai(zanyking)
  *
  */
-/*package*/ class CompositeDefCache{
-	private final Map<Class<?>, CompositeDef> cache = 
-		Collections.synchronizedMap(new HashMap<Class<?>, CompositeDef>());
+/*package*/ class MacroURICache{
+	private final Map<Class<? extends Component>, MacroURIDef> cache = 
+		Collections.synchronizedMap(new HashMap<Class<? extends Component>, MacroURIDef>());
 	
 	/**
 	 * 
@@ -171,10 +200,11 @@ public final class CompositeCtrls {
 	 * @param webapp could be null if a webApp is not applicable.
 	 * @return 
 	 */
-	public CompositeDef get(Class<?> compClass, WebApp webapp){
+	public MacroURIDef get(Class<? extends Component> compClass, WebApp webapp){
 		if(compClass==null || 
-				compClass.equals(AbstractComponent.class)||
-				!isSubClass(compClass, AbstractComponent.class)){
+			compClass.equals(AbstractComponent.class)||
+			!AbstractComponent.class.isAssignableFrom(compClass)){
+			
 			throw new IllegalArgumentException("is null or not a sub-class of ZK AbstractComponent: "+compClass);
 		}
 		return get0(compClass, webapp, compClass);
@@ -186,15 +216,15 @@ public final class CompositeCtrls {
 	/* drive horse
 	 * macroUri & zulContent must always be set together!
 	 */
-	private CompositeDef get0(Class<?> compClass, WebApp webapp, Class<?> oriClass){
+	private MacroURIDef get0(Class<?> compClass, WebApp webapp, Class<?> oriClass){
 		if(compClass==null || 
 				compClass.equals(AbstractComponent.class)){//necessary  
 				return null;
 		}
 		
-		CompositeDef def = cache.get(compClass);
-		if(def!=null){
-			return def;
+		MacroURIDef mUriDef = cache.get(compClass);
+		if(mUriDef!=null){
+			return mUriDef;
 		}
 		
 		String name = compClass.getSimpleName().toLowerCase();
@@ -221,7 +251,7 @@ public final class CompositeCtrls {
 		
 		if(macroUri==null){// get macroURI according to class naming convention
 			URL url = generateMacroURL(compClass);
-			String content = readTextContentIgnore(url);
+			String content = CompositeCtrls.readTextContentIgnore(url);
 			if(content!=null){
 				macroUri = url.getPath();
 				zulContent = content;
@@ -229,18 +259,17 @@ public final class CompositeCtrls {
 		}
 		
 		if(zulContent == null){// inherit macroURI from Super class...
-			CompositeDef superDef = get0(compClass.getSuperclass(), webapp, oriClass);
+			MacroURIDef superDef = get0(compClass.getSuperclass(), webapp, oriClass);
 			if(superDef!=null){
 				macroUri = superDef.macroURI;
-				zulContent = superDef.zulContent;
+				zulContent = superDef.zulContent;	
 			}
 		}
-		if(zulContent!=null){
-			cache.put(compClass, 
-				def = new CompositeDef(
-					name, macroUri, zulContent, (Class<? extends Component>) oriClass));	
-		}
-		return def;
+
+		Class<? extends Component> compClz = compClass.asSubclass(Component.class);
+		cache.put(compClz, mUriDef = new MacroURIDef(
+			name, macroUri, zulContent, compClz));
+		return mUriDef;
 	}
 	
 	private static String errPrefix(Class<?> oriClass){
@@ -250,50 +279,11 @@ public final class CompositeCtrls {
 	
 	private static String getMacroURIContent(String uri, Class<?> compClass, WebApp webapp){
 		//get text according to class path
-		String text = readTextContentIgnore(compClass.getResource(uri));
+		String text = CompositeCtrls.readTextContentIgnore(compClass.getResource(uri));
 		if(text==null && webapp!=null){//get text according to ZK web context
-			text = readTextContentIgnore(webapp.getResource(uri));
+			text = CompositeCtrls.readTextContentIgnore(webapp.getResource(uri));
 		}
 		return text;
-	}
-	
-	private static boolean isSubClass(Class<?> subClz, Class<?> superClz){
-		try {
-			subClz.asSubclass(superClz);
-		} catch (ClassCastException e) {
-			return false;
-		}
-		return true;
-	}
-	/**
-	 * 
-	 * @param url
-	 * @return null if IOException
-	 */
-	static String readTextContentIgnore(URL url){
-		if(url==null)return null;
-		String content;
-		try {
-			content = readTextContent(url.openStream(), 20*1024);
-		} catch (IOException e) {
-			return null;
-		}
-		return content;
-	}
-	
-	private static String readTextContent(InputStream in, int chunkSize) throws IOException{
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		try {
-			byte[] chunk = new byte[chunkSize];
-			int readLen = -1;
-			while( (readLen = in.read(chunk)) != -1){
-				bout.write(chunk, 0, readLen);
-			}
-			return new String(bout.toByteArray(), "UTF-8");
-			
-		}finally{
-			if(in !=null)in.close();
-		}
 	}
 	/**
 	 * Generate a macroURI based on FQCN, 
@@ -303,7 +293,9 @@ public final class CompositeCtrls {
 	 * @return a macroURI based on FQCN 
 	 */
 	private static URL generateMacroURL(Class<?> clz){
-		String path = clz.getName().replace('.', '/')+".zul";
+		String pkgPath = clz.getPackage().getName().replace('.', '/');
+		String path = pkgPath+"/"+clz.getSimpleName()+".zul";
 		return clz.getClassLoader().getResource(path);
 	}
+
 }//end of class...

@@ -1,8 +1,12 @@
 <?page title="Auto Generated index.zul"?>
-<window title="Hello World!!" border="normal" width="200px">
+<window title="Hello World!!" border="normal" width="1000px">
 
 <label value="You are using: ${desktop.webApp.version}"/>
 
-<mywin />
+<mywin>
+
+<imglabel title="test" description="this is description!!" imagePath="~./partial/img/Centigrade-Widget-Icons/Button-24x24.png" />
+
+</mywin>
 
 </window>

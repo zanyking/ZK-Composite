@@ -6,6 +6,8 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.select.Listen;
+import org.zkoss.zk.ui.select.Wire;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Groupbox;
@@ -19,20 +21,28 @@ import org.zkoss.zul.annotation.Composite;
 @Composite(name="imglabel")
 public class ImageLabel extends Div implements IdSpace {
 	
+	@Wire
 	private Groupbox item;
+	@Wire
 	private Image labelImage;
-	private Label titleLabel, descLabel;
+	@Wire
+	private Label titleLabel;
+	@Wire
+	private Label descLabel;
+	
 	public ImageLabel(){
 		Composites.doCompose(this, null);
 	}
 	
 	private InplaceEditor fInplaceEditor;
-	public void onClick$titleLabel(){
+	
+	@Listen("onClick= #titleLabel")
+	public void doTitleClick(){
 		if(fInplaceEditor==null){
 			fInplaceEditor = new InplaceEditor();
 			fInplaceEditor.setParent(item);
 		}else{
-			fInplaceEditor.onClick$cancelBtn();
+			fInplaceEditor.doCancel();
 		}
 	}	
 	
@@ -56,27 +66,34 @@ public class ImageLabel extends Div implements IdSpace {
 		return descLabel.getValue();
 	}
 	
+	
+	
 	public class InplaceEditor extends Div implements IdSpace {
-		
-		private Textbox editTitle, editDesc;
-		private Button cancelBtn, submitBtn;
+		@Wire
+		private Textbox editTitle;
+		@Wire
+		private Textbox editDesc;
+		@Wire
+		private Button cancelBtn;
+		@Wire
+		private Button submitBtn;
 		
 		public InplaceEditor(){
-			Executions.createComponents(
-					"/composite/InplaceEditor.zul", this, null);
-			Components.wireVariables(this, this);
-			Components.addForwards(this, this);
+			Composites.doCompose(this, null);
 			editDesc.setValue(getDescription());
 			editTitle.setValue(getTitle());
 		}
-		public void onClick$submitBtn(){
+		
+		@Listen("onClick = #submitBtn")
+		public void doSubmit(){
 			setTitle(editTitle.getValue());
 			setDescription(editDesc.getValue());
 			Events.postEvent(new SubmitEvent());
-			onClick$cancelBtn();
+			doCancel();
 		}
-
-		public void onClick$cancelBtn(){
+		
+		@Listen("onClick = #cancelBtn")
+		public void doCancel(){
 			this.detach();
 			fInplaceEditor = null;
 		}

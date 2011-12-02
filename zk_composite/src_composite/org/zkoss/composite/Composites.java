@@ -23,7 +23,7 @@ import org.zkoss.zk.ui.select.Selectors;
  */
 public class Composites {
 	private Composites(){}//Utility class
-	static final CompositeDefCache DEF_CACHE = new CompositeDefCache();
+	static final MacroURICache URI_DEF_CACHE = new MacroURICache();
 	/**
 	 * current value is: "org.zkoss.composite.packageScan"
 	 */
@@ -50,24 +50,11 @@ public class Composites {
 			throw new IllegalArgumentException(e);
 		}
 		
-		CompositeDef def = DEF_CACHE.get(compClass, WebApps.getCurrent());
-		if(def==null){
-			throw new IllegalArgumentException(
-				"cannot find proper macroURI declaration plase check your composite zul spelling");
-		}
+		MacroURIDef def = URI_DEF_CACHE.get(compClass, WebApps.getCurrent());
+
 		doCompose(def, instance, args);
 		return instance; 
 	}
-	/**
-	 * 
-	 * @param composite
-	 * @param compDef
-	 * @param args
-	 */
-	private static void doCompose(CompositeDef compDef, Component composite,  Map args){
-		doComposeDirectly(compDef.zulContent, null, composite, args);
-	}
-	
 	/**
 	 * This method will make the given component become a ZK MVC controller 
 	 * which children rendering is based on a zul file.<br>
@@ -80,14 +67,29 @@ public class Composites {
 	 * @throws IOException
 	 */
 	public static void doCompose(Component composite,  Map args){
-		CompositeDef def = 
-			DEF_CACHE.get(composite.getClass(), WebApps.getCurrent());
-		if(def==null){
-			throw new IllegalArgumentException(
-				"cannot find proper macroURI declaration plase check your composite zul spelling");
-		}
+		MacroURIDef def = 
+			URI_DEF_CACHE.get(composite.getClass(), WebApps.getCurrent());
+
 		doCompose( def, composite, args);
 	}
+	/**
+	 * 
+	 * @param composite
+	 * @param macroUriDef
+	 * @param args
+	 */
+	private static void doCompose(MacroURIDef macroUriDef, Component composite,  Map args){
+		if(macroUriDef!=null && 
+			macroUriDef.zulContent!=null && 
+			!macroUriDef.zulContent.isEmpty()){
+			
+			Executions.createComponentsDirectly(macroUriDef.zulContent, null, composite, args);	
+		}
+			
+		autowire(composite);
+		Selectors.wireEventListeners(composite, composite); 
+	}
+	
 	/**
 	 * 
 	 * @param composite
@@ -96,7 +98,7 @@ public class Composites {
 	 * @throws IOException
 	 */
 	public static void doCompose(URL url, Component composite, Map args){
-		String text = CompositeDefCache.readTextContentIgnore(url);
+		String text = CompositeCtrls.readTextContentIgnore(url);
 		if(text ==null){
 			throw new IllegalArgumentException(" cannot get zul text content from url: "+url);
 		}
@@ -108,7 +110,7 @@ public class Composites {
 	 * @param args
 	 * @throws IOException
 	 */
-	public static void doCompose(String path, Component composite,   Map args) {
+	public static void doCompose(String path, Component composite, Map args) {
 		Executions.createComponents(path, composite, args);
 		autowire(composite);
 		Selectors.wireEventListeners(composite, composite); 
@@ -121,7 +123,7 @@ public class Composites {
 	 * @param args
 	 */
 	public static void doComposeDirectly(String zulContent, String extention, Component composite,  Map args){
-		Executions.createComponentsDirectly(zulContent, extention, composite, args);
+		Executions.createComponentsDirectly(zulContent, extention, composite, args);	
 		autowire(composite);
 		Selectors.wireEventListeners(composite, composite); 
 	}

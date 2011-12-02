@@ -42,6 +42,7 @@ public class CompositeDef_TEST {
 		try{
 			Composites.getInstance(NoProperMacroURI.class, null);	
 		}catch(Exception e){
+			e.printStackTrace();
 			result = e;
 		}
 		Assert.assertEquals(result.getClass(), IllegalArgumentException.class);

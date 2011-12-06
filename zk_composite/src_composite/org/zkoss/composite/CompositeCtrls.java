@@ -24,7 +24,6 @@ import org.zkoss.zk.ui.WebApps;
 import org.zkoss.zk.ui.metainfo.ComponentDefinition;
 import org.zkoss.zk.ui.metainfo.DefinitionNotFoundException;
 import org.zkoss.zk.ui.metainfo.LanguageDefinition;
-import org.zkoss.zul.annotation.Composite;
 
 /**
  * @author Ian YT Tsai(zanyking)

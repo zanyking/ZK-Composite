@@ -1,8 +1,7 @@
 package demo.ui.composite;
 
+import org.zkoss.composite.Composite;
 import org.zkoss.composite.Composites;
-import org.zkoss.zk.ui.Components;
-import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
@@ -14,11 +13,10 @@ import org.zkoss.zul.Groupbox;
 import org.zkoss.zul.Image;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Textbox;
-import org.zkoss.zul.annotation.Composite;
 
 
 
-@Composite(name="imglabel")
+@Composite
 public class ImageLabel extends Div implements IdSpace {
 	
 	@Wire
@@ -67,7 +65,11 @@ public class ImageLabel extends Div implements IdSpace {
 	}
 	
 	
-	
+	/**
+	 * 
+	 * @author Ian Y.T Tsai(zanyking)
+	 *
+	 */
 	public class InplaceEditor extends Div implements IdSpace {
 		@Wire
 		private Textbox editTitle;
@@ -99,6 +101,11 @@ public class ImageLabel extends Div implements IdSpace {
 		}
 	}
 	public static final String ON_SUBMIT = "onSubmit";
+	/**
+	 * 
+	 * @author Ian Y.T Tsai(zanyking)
+	 *
+	 */
 	public class SubmitEvent extends Event{
 		public SubmitEvent() {
 			super(ON_SUBMIT, ImageLabel.this);

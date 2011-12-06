@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.zkoss.zul.annotation;
+package org.zkoss.composite;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

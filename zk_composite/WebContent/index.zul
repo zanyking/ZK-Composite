@@ -5,7 +5,9 @@
 
 <mywin>
 
-<imglabel title="test" description="this is description!!" imagePath="~./partial/img/Centigrade-Widget-Icons/Button-24x24.png" />
+<imglabel title="test" 
+	description="this is description!!" 
+	imagePath="~./partial/img/Centigrade-Widget-Icons/Button-24x24.png" />
 
 </mywin>
 

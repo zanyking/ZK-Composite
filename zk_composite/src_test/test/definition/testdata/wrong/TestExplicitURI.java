@@ -3,8 +3,8 @@
  */
 package test.definition.testdata.wrong;
 
+import org.zkoss.composite.Composite;
 import org.zkoss.zk.ui.IdSpace;
-import org.zkoss.zul.annotation.Composite;
 
 import test.definition.testdata.correct.MySuperDiv;
 

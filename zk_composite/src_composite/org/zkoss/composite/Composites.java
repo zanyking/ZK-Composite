@@ -52,7 +52,7 @@ public class Composites {
 		
 		MacroURIDef def = URI_DEF_CACHE.get(compClass, WebApps.getCurrent());
 
-		doCompose(def, instance, args);
+		doCompose(def, instance, instance, args);
 		return instance; 
 	}
 	/**
@@ -70,7 +70,13 @@ public class Composites {
 		MacroURIDef def = 
 			URI_DEF_CACHE.get(composite.getClass(), WebApps.getCurrent());
 
-		doCompose( def, composite, args);
+		doCompose( def, composite, composite, args);
+	}
+	public static void doCompose(Component composite, Object controller, Map args){
+		MacroURIDef def = 
+			URI_DEF_CACHE.get(composite.getClass(), WebApps.getCurrent());
+
+		doCompose( def, composite, controller, args);
 	}
 	/**
 	 * 
@@ -78,16 +84,14 @@ public class Composites {
 	 * @param macroUriDef
 	 * @param args
 	 */
-	private static void doCompose(MacroURIDef macroUriDef, Component composite,  Map args){
+	private static void doCompose(MacroURIDef macroUriDef, Component composite, Object controller,  Map args){
 		if(macroUriDef!=null && 
 			macroUriDef.zulContent!=null && 
 			!macroUriDef.zulContent.isEmpty()){
-			
 			Executions.createComponentsDirectly(macroUriDef.zulContent, null, composite, args);	
 		}
-			
-		autowire(composite);
-		Selectors.wireEventListeners(composite, composite); 
+		wireController(composite, controller);
+		
 	}
 	
 	/**
@@ -112,8 +116,7 @@ public class Composites {
 	 */
 	public static void doCompose(String path, Component composite, Map args) {
 		Executions.createComponents(path, composite, args);
-		autowire(composite);
-		Selectors.wireEventListeners(composite, composite); 
+		wireController(composite, composite);
 	}
 	/**
 	 * 
@@ -124,19 +127,19 @@ public class Composites {
 	 */
 	public static void doComposeDirectly(String zulContent, String extention, Component composite,  Map args){
 		Executions.createComponentsDirectly(zulContent, extention, composite, args);	
-		autowire(composite);
-		Selectors.wireEventListeners(composite, composite); 
+		wireController(composite, composite);
 	}
 	/**
 	 * 
 	 * @param comp
 	 */
-	private static void autowire(Component comp){
+	private static void wireController(Component comp, Object controller){
 		IdSpace spaceOwner = comp.getSpaceOwner();
 		if(spaceOwner instanceof Page)
-			Selectors.wireVariables((Page) spaceOwner, comp);
+			Selectors.wireVariables((Page) spaceOwner, controller);
 		else
-			Selectors.wireVariables((Component) spaceOwner, comp);
+			Selectors.wireVariables((Component) spaceOwner, controller);
+		Selectors.wireEventListeners(comp, controller); 
 	}
 	
 }//end of class...

@@ -3,9 +3,9 @@
  */
 package test.definition.testdata.wrong;
 
+import org.zkoss.composite.Composite;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zul.Div;
-import org.zkoss.zul.annotation.Composite;
 
 /**
  * @author Ian YT Tsai(zanyking)

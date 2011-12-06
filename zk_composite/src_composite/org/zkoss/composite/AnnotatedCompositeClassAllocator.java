@@ -15,7 +15,6 @@ import org.zkoss.spring.util.ClassUtils;
 import org.zkoss.util.cpr.ResourceAllocator;
 import org.zkoss.util.cpr.ResourceVisitor;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zul.annotation.Composite;
 
 /**
  * @author Ian YT Tsai(zanyking)

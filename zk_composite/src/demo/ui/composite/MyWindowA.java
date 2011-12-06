@@ -3,10 +3,10 @@
  */
 package demo.ui.composite;
 
+import org.zkoss.composite.Composite;
 import org.zkoss.composite.Composites;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zul.Window;
-import org.zkoss.zul.annotation.Composite;
 
 /**
  * @author Ian YT Tsai(zanyking)

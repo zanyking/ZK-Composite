@@ -3,7 +3,7 @@
  */
 package test.definition.testdata.wrong;
 
-import org.zkoss.zul.annotation.Composite;
+import org.zkoss.composite.Composite;
 
 /**
  * @author Ian YT Tsai(zanyking)

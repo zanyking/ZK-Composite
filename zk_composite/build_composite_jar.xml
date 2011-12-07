@@ -59,11 +59,12 @@
 		<zip destfile="${dist}/ZK-Composite.zip">
 			<zipfileset dir="${dist}/lib" prefix="lib"/>
 			<zipfileset dir="lib" prefix="lib"/>
-			<zipfileset dir="ext" prefix="lib/ext"/>
 			
-			<zipfileset dir="WebContent/" prefix="WebContent"/>
+			<zipfileset dir="WebContent/" prefix="WebContent">
+				<exclude name="WEB-INF/lib/*.jar"/>
+			</zipfileset>
 			
-			
+			<zipfileset dir="${dist}/lib" prefix="WebContent/WEB-INF/lib"/>
 			<zipfileset dir="lib" prefix="WebContent/WEB-INF/lib"/>
 			
 			<zipfileset dir="src" prefix="src_demo"/>

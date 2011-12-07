@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.zkoss.lang.Library;
 import org.zkoss.util.cpr.ClassFinder;
@@ -32,22 +31,95 @@ import org.zkoss.zk.ui.metainfo.LanguageDefinition;
 public final class CompositeCtrls {
 	private CompositeCtrls(){}//Utility class
 	
+	/**
+	 * <p>
+	 * this handler is designed to handle Composite's default macroURI resolving and  
+	 * 
+	 * 
+	 * </p> 
+	 * @author Ian Y.T Tsai(zanyking)
+	 */
+	public static interface CompositeDefHandler{
+		/**
+		 * 
+		 * @param compClz
+		 * @return
+		 */
+		public String getDefaultComponentName(Class<?> compClz);
+		/**
+		 * Generate a macroURI based on given class.<be> 
+		 * for example, the default implementation of ZK Composite is: "a.b.c.MyPanel.java" will return "a/b/c/MyPanel.zul"<br>
+		 * 
+		 * @param clz he composite class
+		 * @return a macroURI based on FQCN 
+		 */
+		public String getDefaultMacroURI(Class<?> compClz);
+		/**
+		 * 
+		 * @param uri
+		 * @param compClass
+		 * @param webapp
+		 * @return
+		 */
+		public String getMacroURIContent(String uri, Class<?> compClass, WebApp webapp);
+	}//end of class
+	
+	
+	private static final CompositeDefHandler DEFAULT_HANDLER = new CompositeDefHandler() {
+		@Override
+		public String getDefaultMacroURI(Class<?> compClz) {
+			String pkgPath = compClz.getPackage().getName().replace('.', '/');
+			String path = pkgPath+"/"+compClz.getSimpleName()+".zul";
+			return path;
+		}
+		
+		@Override
+		public String getDefaultComponentName(Class<?> compClz) {
+			return null;
+		}
+
+		@Override
+		public String getMacroURIContent(String uri, Class<?> compClass, WebApp webapp){
+			//get text according to class path
+			String text = CompositeCtrls.readTextContentIfAny(compClass.getResource(uri));
+			if(text==null && webapp!=null){//get text according to ZK web context
+				text = CompositeCtrls.readTextContentIfAny(webapp.getResource(uri));
+			}
+			return text;
+		}
+	};
+	
+	private static CompositeDefHandler defHandler = DEFAULT_HANDLER;
+	/**
+	 * 
+	 * @return
+	 */
+	public static CompositeDefHandler getCompositeDefHandler(){
+		return defHandler;
+	}
+	/**
+	 * 
+	 * @param aDefHandler
+	 */
+	public static void setCompositeDefHandler(CompositeDefHandler aDefHandler){
+		defHandler = aDefHandler;
+	}
 	
 	/**
 	 * 
 	 * @param compositeClz
 	 * @return
 	 */
-	public static String getName(Class<? extends Component> compositeClz){
-		return Composites.URI_DEF_CACHE.get(compositeClz, WebApps.getCurrent()).name;
+	public static String getNameFromDefCache(Class<? extends Component> compositeClz){
+		return Composites.DEF_CACHE.get(compositeClz, WebApps.getCurrent()).name;
 	}
 	/**
 	 * 
 	 * @param compositeClz
 	 * @return
 	 */
-	public static String getMacroURI(Class<? extends Component> compositeClz){
-		return Composites.URI_DEF_CACHE.get(compositeClz, WebApps.getCurrent()).macroURI;
+	public static String getMacroURIFromDefCache(Class<? extends Component> compositeClz){
+		return Composites.DEF_CACHE.get(compositeClz, WebApps.getCurrent()).macroURI;
 	}
 	
 	/**
@@ -66,7 +138,7 @@ public final class CompositeCtrls {
 		LanguageDefinition langDef =  LanguageDefinition.lookup("xul/html");
 		ComponentDefinition def = getPredefinedSuperType(compClass, langDef);
 		if(def !=null){
-			MacroURIDef mUriDef = Composites.URI_DEF_CACHE.get(compClass, webapp);
+			CompositeDef mUriDef = Composites.DEF_CACHE.get(compClass, webapp);
 			ComponentDefinition curDef = def.clone(langDef, mUriDef.name);
 			curDef.setImplementationClass(compClass);
 			langDef.addComponentDefinition(curDef);
@@ -140,7 +212,7 @@ public final class CompositeCtrls {
 	 * @param url
 	 * @return null if IOException
 	 */
-	static String readTextContentIgnore(URL url){
+	static String readTextContentIfAny(URL url){
 		if(url==null)return null;
 		String content;
 		try {
@@ -150,6 +222,19 @@ public final class CompositeCtrls {
 		}
 		return content;
 	}
+	/**
+	 * 
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	static String readTextContent(URL url) throws IOException {
+		if(url==null)return null;
+		String content;
+		content = readTextContent(url.openStream(), 20*1024);
+		return content;
+	}
+	
 	private static String readTextContent(InputStream in, int chunkSize) throws IOException{
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		try {
@@ -174,7 +259,7 @@ public final class CompositeCtrls {
  * @author Ian YT Tsai(zanyking)
  *
  */
-/*package*/ class MacroURIDef{
+/*package*/ class CompositeDef{
 	
 	public final String macroURI;
 	public final String name;
@@ -187,7 +272,7 @@ public final class CompositeCtrls {
 	 * @param content
 	 * @param superClass
 	 */
-	public MacroURIDef(String name, String macroURI, String content, Class<? extends Component> klass) {
+	public CompositeDef(String name, String macroURI, String content, Class<? extends Component> klass) {
 		this.name = name;
 		this.macroURI = macroURI;
 		this.zulContent = content;
@@ -201,17 +286,16 @@ public final class CompositeCtrls {
  * @author Ian YT Tsai(zanyking)
  *
  */
-/*package*/ class MacroURICache{
-	private final Map<Class<? extends Component>, MacroURIDef> cache = 
-		Collections.synchronizedMap(new HashMap<Class<? extends Component>, MacroURIDef>());
-	
+/*package*/ class DefCache{
+	private final Map<Class<? extends Component>, CompositeDef> cache = 
+		Collections.synchronizedMap(new HashMap<Class<? extends Component>, CompositeDef>());
 	/**
 	 * 
 	 * @param compClass the composite class that you want to define.
 	 * @param webapp could be null if a webApp is not applicable.
 	 * @return 
 	 */
-	public MacroURIDef get(Class<? extends Component> compClass, WebApp webapp){
+	public CompositeDef get(Class<? extends Component> compClass, WebApp webapp){
 		if(compClass==null || 
 			compClass.equals(AbstractComponent.class)||
 			!AbstractComponent.class.isAssignableFrom(compClass)){
@@ -220,25 +304,21 @@ public final class CompositeCtrls {
 		}
 		return get0(compClass, webapp, compClass);
 	}
-	
-	
-	
-	
 	/* drive horse
 	 * macroUri & zulContent must always be set together!
 	 */
-	private MacroURIDef get0(Class<?> compClass, WebApp webapp, Class<?> oriClass){
+	private CompositeDef get0(Class<?> compClass, WebApp webapp, Class<?> oriClass){
 		if(compClass==null || 
 				compClass.equals(AbstractComponent.class)){//necessary  
 				return null;
 		}
 		
-		MacroURIDef mUriDef = cache.get(compClass);
+		CompositeDef mUriDef = cache.get(compClass);
 		if(mUriDef!=null){
 			return mUriDef;
 		}
 		
-		String name = compClass.getSimpleName().toLowerCase();
+		String name = CompositeCtrls.getCompositeDefHandler().getDefaultComponentName(compClass);
 		
 		String macroUri = null;
 		String zulContent = null;
@@ -253,7 +333,7 @@ public final class CompositeCtrls {
 			}
 			if(!anno.macroURI().isEmpty()){// use explicit Composite declaration.
 				macroUri = anno.macroURI();
-				zulContent = getMacroURIContent(macroUri, compClass, webapp);
+				zulContent = CompositeCtrls.getCompositeDefHandler().getMacroURIContent(macroUri, compClass, webapp);
 				if(zulContent==null)// loading failed
 					throw new IllegalArgumentException(errPrefix(oriClass)+
 						"the macroURI content retrieving of \"" +compClass+ "\" has failed, macroURI: "+macroUri);
@@ -261,8 +341,9 @@ public final class CompositeCtrls {
 		}
 		
 		if(macroUri==null){// get macroURI according to class naming convention
-			URL url = generateMacroURL(compClass);
-			String content = CompositeCtrls.readTextContentIgnore(url);
+			String path = CompositeCtrls.getCompositeDefHandler().getDefaultMacroURI(compClass);
+			URL url = compClass.getClassLoader().getResource(path);
+			String content = CompositeCtrls.readTextContentIfAny(url);
 			if(content!=null){
 				macroUri = url.getPath();
 				zulContent = content;
@@ -270,7 +351,7 @@ public final class CompositeCtrls {
 		}
 		
 		if(zulContent == null){// inherit macroURI from Super class...
-			MacroURIDef superDef = get0(compClass.getSuperclass(), webapp, oriClass);
+			CompositeDef superDef = get0(compClass.getSuperclass(), webapp, oriClass);
 			if(superDef!=null){
 				macroUri = superDef.macroURI;
 				zulContent = superDef.zulContent;	
@@ -278,7 +359,7 @@ public final class CompositeCtrls {
 		}
 
 		Class<? extends Component> compClz = compClass.asSubclass(Component.class);
-		cache.put(compClz, mUriDef = new MacroURIDef(
+		cache.put(compClz, mUriDef = new CompositeDef(
 			name, macroUri, zulContent, compClz));
 		return mUriDef;
 	}
@@ -288,25 +369,6 @@ public final class CompositeCtrls {
 	}
 	
 	
-	private static String getMacroURIContent(String uri, Class<?> compClass, WebApp webapp){
-		//get text according to class path
-		String text = CompositeCtrls.readTextContentIgnore(compClass.getResource(uri));
-		if(text==null && webapp!=null){//get text according to ZK web context
-			text = CompositeCtrls.readTextContentIgnore(webapp.getResource(uri));
-		}
-		return text;
-	}
-	/**
-	 * Generate a macroURI based on FQCN, 
-	 * for example: "a.b.c.MyPanel.java" will return "a/b/c/MyPanel.zul"
-	 * 
-	 * @param clz he composite class
-	 * @return a macroURI based on FQCN 
-	 */
-	private static URL generateMacroURL(Class<?> clz){
-		String pkgPath = clz.getPackage().getName().replace('.', '/');
-		String path = pkgPath+"/"+clz.getSimpleName()+".zul";
-		return clz.getClassLoader().getResource(path);
-	}
+	
 
 }//end of class...

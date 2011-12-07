@@ -16,7 +16,7 @@ import org.zkoss.zul.Textbox;
 
 
 
-@Composite
+@Composite(name="imglabel")
 public class ImageLabel extends Div implements IdSpace {
 	
 	@Wire

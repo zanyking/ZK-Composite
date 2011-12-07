@@ -36,21 +36,10 @@ public class CompositeDef_TEST {
 		Assert.assertEquals(arr.get(0), MySuperDiv.class);
 	}
 	
-	@Test
-	public void noProperMacroURI(){
-		Exception result = null;
-		try{
-			Composites.getInstance(NoProperMacroURI.class, null);	
-		}catch(Exception e){
-			e.printStackTrace();
-			result = e;
-		}
-//		Assert.assertEquals(result.getClass(), IllegalArgumentException.class);
-	}
 
 	@Test
 	public void inheritanceTest(){
-		String macroURI = CompositeCtrls.getMacroURI(MyDiv.class);
+		String macroURI = CompositeCtrls.getMacroURIFromDefCache(MyDiv.class);
 		URL url = MyDiv.class.getResource("MyDiv.zul");
 //		System.out.println(macroURI);
 //		System.out.println(url.getPath());

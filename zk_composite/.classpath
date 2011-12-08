@@ -12,6 +12,6 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk_6_x64"/>
-	<classpathentry kind="lib" path="/zk_cpr/bin"/>
+	<classpathentry kind="lib" path="/zk_cpr/bin" sourcepath="/zk_cpr"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

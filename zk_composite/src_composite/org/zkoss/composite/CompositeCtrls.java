@@ -6,15 +6,18 @@ package org.zkoss.composite;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.zkoss.lang.Library;
 import org.zkoss.util.cpr.ClassFinder;
+import org.zkoss.util.cpr.Consts;
 import org.zkoss.util.cpr.ResourceVisitor;
 import org.zkoss.zk.ui.AbstractComponent;
 import org.zkoss.zk.ui.Component;
@@ -79,16 +82,27 @@ public final class CompositeCtrls {
 		}
 
 		@Override
-		public String getMacroURIContent(String uri, Class<?> compClass, WebApp webapp){
+		public String getMacroURIContent(String macroURI, Class<?> compClass, WebApp webapp){
 			//get text according to class path
-			String text = CompositeCtrls.readTextContentIfAny(compClass.getResource(uri));
+			String text = CompositeCtrls.readTextContentIfAny(compClass.getResource(macroURI));
 			if(text==null && webapp!=null){//get text according to ZK web context
-				text = CompositeCtrls.readTextContentIfAny(webapp.getResource(uri));
+				text = CompositeCtrls.readTextContentIfAny(webapp.getResource(macroURI));
+			}
+			if(text==null){
+				try {
+					text = CompositeCtrls.readTextContentIfAny(new URL(macroURI));
+				} catch (MalformedURLException e) {
+					//TODO: log, this is not even an URL...
+				}
+			}
+			if(text==null){
+				throw new IllegalArgumentException("the given macroURI is not a classpath resource, " +
+						"not a zk context resource nor a resolvable URL. macroURI: "+macroURI);
 			}
 			return text;
 		}
 	};
-	
+
 	private static CompositeDefHandler defHandler = DEFAULT_HANDLER;
 	/**
 	 * 
@@ -163,28 +177,19 @@ public final class CompositeCtrls {
 		}
 		return def;
 	}
-	
+		
 	/**
+	 * scanning the given package and registering all annotated Composite class.  
 	 * 
-	 * @param webapp
-	 * @return
+	 * @param pkg the base package to scan
+	 * @param webapp the {@link WebApp} instance that will be used in any resource resolving tasks in this method call. 
+	 * @return the founded and registered classes 
 	 */
-	public static List<Class<? extends Component>> scan(WebApp webapp){
-		String _package_ = Library.getProperty(Composites.LIB_PROPERTY_SCAN_PACKAGE);
-		return scan(_package_, webapp);
-	}
-	
-	/**
-	 * 
-	 * @param _package_
-	 * @param webapp
-	 * @return
-	 */
-	public static List<Class<? extends Component>> scan(String _package_, final WebApp webapp){
+	public static List<Class<? extends Component>> scan(String pkg, final WebApp webapp){
 		
 		ClassFinder<Class<? extends Component>> finder = 
 			new ClassFinder<Class<? extends Component>>(
-				_package_, new AnnotatedCompositeClassAllocator(), true);
+				pkg, new AnnotatedCompositeClassAllocator(), true);
 		
 		final ArrayList<Class<? extends Component>> result = 
 			new ArrayList<Class<? extends Component>>();

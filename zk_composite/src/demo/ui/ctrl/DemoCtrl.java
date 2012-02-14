@@ -9,7 +9,7 @@ import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zk.ui.util.GenericForwardComposer;
 
 import demo.ui.composite.ImageLabel;
-import demo.ui.composite.ImageLabel.SubmitEvent;
+import demo.ui.composite.ImageLabel.AfterEditEvent;
 
 /**
  * @author ian
@@ -31,12 +31,12 @@ public class DemoCtrl extends GenericForwardComposer{
 		imgLbl.setDescription("this is a desc!!!");
 		imgLbl.setImagePath("/res/img/ShoppingCart-16x16.png");
 
-		imgLbl.addEventListener(ImageLabel.ON_SUBMIT, new EventListener<Event>(){
+		imgLbl.addEventListener(ImageLabel.ON_AFTER_EDIT, new EventListener<Event>(){
 			public void onEvent(Event event) throws Exception {
-				SubmitEvent ilEvt = (SubmitEvent) event;
+				AfterEditEvent ilEvt = (AfterEditEvent) event;
 
 				System.out.println("EVENT:" +
-						ImageLabel.ON_SUBMIT+ " : "+ilEvt.getDescription());
+						ImageLabel.ON_AFTER_EDIT+ " : "+ilEvt.getDescription());
 				ilEvt.getTitle();
 			}});
 		

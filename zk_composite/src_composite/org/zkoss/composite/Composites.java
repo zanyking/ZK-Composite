@@ -122,10 +122,9 @@ public class Composites {
 	private static void wireController(Component comp, Object controller){
 		IdSpace spaceOwner = comp.getSpaceOwner();
 		if(spaceOwner instanceof Page)
-			Selectors.wireVariables((Page) spaceOwner, controller);
+			Selectors.wireVariables((Page) spaceOwner, controller, null);
 		else
-			Selectors.wireVariables((Component) spaceOwner, controller);
-		Selectors.wireEventListeners(comp, controller); 
+			Selectors.wireVariables((Component) spaceOwner, controller, null);
 	}
 	
 	

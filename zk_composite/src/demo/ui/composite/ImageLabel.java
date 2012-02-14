@@ -5,8 +5,8 @@ import org.zkoss.composite.Composites;
 import org.zkoss.zk.ui.IdSpace;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.select.Listen;
-import org.zkoss.zk.ui.select.Wire;
+import org.zkoss.zk.ui.select.annotation.Listen;
+import org.zkoss.zk.ui.select.annotation.Wire;
 import org.zkoss.zul.Button;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Groupbox;
@@ -90,7 +90,7 @@ public class ImageLabel extends Div implements IdSpace {
 		public void doSubmit(){
 			setTitle(editTitle.getValue());
 			setDescription(editDesc.getValue());
-			Events.postEvent(new SubmitEvent());
+			Events.postEvent(new AfterEditEvent());
 			doCancel();
 		}
 		
@@ -100,15 +100,15 @@ public class ImageLabel extends Div implements IdSpace {
 			fInplaceEditor = null;
 		}
 	}
-	public static final String ON_SUBMIT = "onSubmit";
+	public static final String ON_AFTER_EDIT = "onAfterEdit";
 	/**
 	 * 
 	 * @author Ian Y.T Tsai(zanyking)
 	 *
 	 */
-	public class SubmitEvent extends Event{
-		public SubmitEvent() {
-			super(ON_SUBMIT, ImageLabel.this);
+	public class AfterEditEvent extends Event{
+		public AfterEditEvent() {
+			super(ON_AFTER_EDIT, ImageLabel.this);
 		}
 		
 		public String getImagePath() {

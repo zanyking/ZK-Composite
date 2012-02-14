@@ -1,14 +1,14 @@
-<?page title="Auto Generated index.zul"?>
-<window title="Hello World!!" border="normal" width="1000px">
 
-<label value="You are using: ${desktop.webApp.version}"/>
+<window title="Composite Demo" border="normal" width="1000px">
 
-<mywin>
-
-<imglabel title="test" 
-	description="this is description!!" 
-	imagePath="~./partial/img/Centigrade-Widget-Icons/Button-24x24.png" />
-
-</mywin>
+	<imglabel title="test" 
+		description="this is description!!" 
+		imagePath="~./partial/img/Centigrade-Widget-Icons/Button-24x24.png">
+		
+		<attribute name="onAfterEdit"><![CDATA[
+			alert("new title is: "+event.title);
+		]]></attribute>
+		
+	</imglabel>
 
 </window>

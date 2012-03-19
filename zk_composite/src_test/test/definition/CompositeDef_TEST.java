@@ -26,7 +26,7 @@ public class CompositeDef_TEST {
 	}
 	
 	
-	@Test
+//	@Test
 	public void scanPackage(){
 		
 		List<Class<? extends Component>> arr = 

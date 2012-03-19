@@ -34,4 +34,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src_cpr</name>
+			<type>2</type>
+			<location>D:/Developement/workspace_zk6/ZK-CPR/zk_cpr/src_cpr</location>
+		</link>
+	</linkedResources>
 </projectDescription>

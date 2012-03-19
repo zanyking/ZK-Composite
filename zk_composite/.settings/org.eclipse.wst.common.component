@@ -6,6 +6,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_composite"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_spring_ctx"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_test"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src_cpr"/>
         <property name="java-output-path" value="/zk6_sub/build/classes"/>
         <property name="context-root" value="zk_composite"/>
     </wb-module>

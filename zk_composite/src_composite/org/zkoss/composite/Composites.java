@@ -118,46 +118,15 @@ public class Composites {
 	/**
 	 * 
 	 * @param comp
+	 * @param controller
 	 */
 	private static void wireController(Component comp, Object controller){
-		IdSpace spaceOwner = comp.getSpaceOwner();
-		if(spaceOwner instanceof Page){
-			Selectors.wireVariables((Page) spaceOwner, controller, null);
-			Selectors.wireComponents((Page) spaceOwner, controller, true);
-		}else{
-			Selectors.wireVariables((Component) spaceOwner, controller, null);
-			Selectors.wireComponents((Component) spaceOwner, controller, true);
-		}
-			
+		Selectors.wireVariables(comp, controller, null);
+		Selectors.wireComponents(comp, controller, true);
+		Selectors.wireEventListeners(comp, controller);		
 	}
 	
 	
-//	/**
-//	 * For a Composite implementation which don't want to have a <i>doCompose(...)</i> call in it's constructor, this is a static factory method to do so.<br>
-//	 *  this static factory method will use the given Component class to create a component instance, and call <i>doCompose(...)</i>
-//	 * @param <T>
-//	 * @param clz
-//	 * @param args
-//	 * @return
-//	 * @throws IOException
-//	 */
-//	public static <T extends Component> T 
-//	getInstance(Class<T> compClass,  Map<String, ? extends Object> args){
-//		
-//		T instance;
-//		try {
-//			instance = compClass.newInstance();
-//		} catch (InstantiationException e) {
-//			throw new RuntimeException("an exception occured while construction", e);
-//		} catch (IllegalAccessException e) {
-//			throw new IllegalArgumentException(e);
-//		}
-//		
-//		CompositeDef def = DEF_CACHE.get(compClass, WebApps.getCurrent());
-//
-//		doCompose(def, instance, instance, args);
-//		return instance; 
-//	}
 }//end of class...
 
 

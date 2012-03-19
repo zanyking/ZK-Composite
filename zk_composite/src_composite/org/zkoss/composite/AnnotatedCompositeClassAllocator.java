@@ -78,6 +78,7 @@ public class AnnotatedCompositeClassAllocator implements ResourceAllocator<Class
 				if(in!=null)in.close();
 			}
 		} catch (Exception e1) {
+			e1.printStackTrace();
 			throw new RuntimeException(e1);
 		}
 		

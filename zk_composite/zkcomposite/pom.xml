@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.zkoss.composite</groupId>
+	<artifactId>zkcomposite</artifactId>
+	<version>0.8.0</version>
+	<properties>
+		<zk.version>6.0.0</zk.version>
+		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
+		<packname>-${project.version}-FL-${maven.build.timestamp}</packname>
+	</properties>
+	<packaging>jar</packaging>
+	<name>The zkcomposite library</name>
+	<description>The zkcomposite library</description>
+	<licenses>
+		<license>
+			<name>GNU General Public License, Version 2.0</name>
+			<url>http://www.gnu.org/licenses/gpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<repositories>
+		<repository>
+			<id>zk repository</id>
+			<url>http://mavensync.zkoss.org/maven2</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>org.zkoss.zk</groupId>
+			<artifactId>zul</artifactId>
+			<version>${zk.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.zkoss.composite</groupId>
+			<artifactId>zkcpr</artifactId>
+			<version>0.8.0</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<!-- build jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<!-- build javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<charset>UTF-8</charset>
+							<reportOutputDirectory>${project.basedir}/target/javadoc</reportOutputDirectory>
+							<destDir>zkcomposite</destDir>
+							<show>protected</show>
+						</configuration>
+						<goals>
+							<goal>javadoc</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<!-- build sources.jar -->
+					<execution>
+						<id>sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}</finalName>
+							<descriptors>
+								<descriptor>assembly/sources.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<!-- build bin.zip -->
+					<execution>
+						<id>bin</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}-bin${packname}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>assembly/bin.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<!-- build javadoc.zip -->
+					<execution>
+						<id>javadoc</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}-javadoc${packname}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>assembly/javadoc.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<!-- build bundle.jar -->
+					<execution>
+						<id>bundle</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly/sources.xml</descriptor>
+								<descriptor>assembly/bundle.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<!-- build src.zip -->
+					<execution>
+						<id>src</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.artifactId}-src${packname}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>assembly/src.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

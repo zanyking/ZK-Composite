@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+	<config-name>zkcomposite</config-name><!-- used to resolve dependency -->
+	<!--
+	<depends>zk</depends>
+	-->
+	
+  	<version>
+		<version-class>org.zkoss.composite.Version</version-class>
+		<version-uid>0.8.0</version-uid>
+		<zk-version>6.0.0</zk-version>
+	</version>
+
+	<listener>
+		<listener-class>org.zkoss.composite.PackageScanWebAppInit</listener-class>
+	</listener>
+</zk>

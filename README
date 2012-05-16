@@ -1,1 +1,12 @@
-this is the README of this project, I never use git before, sorry.
+ZK Composite is a sub framework to build your own component based on ZK 6 component set.
+
+##Maven Dependency Setting
+	
+
+URL: http://mavensync.zkoss.org/maven2
+
+<dependency>
+   <groupId>org.zkoss.composite</groupId>
+   <artifactId>zkcomposite</artifactId>
+   <version>0.8.0</version>
+</dependency>
